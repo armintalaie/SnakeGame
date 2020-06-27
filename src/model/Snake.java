@@ -6,10 +6,10 @@ public class Snake {
 
     int LENGTH;
 
-    LinkedList<Integer> linkedList = new LinkedList<>();
+    LinkedList<Integer[]> body = new LinkedList<>();
 
-    Snake(int length) {
-        this.LENGTH = length;
+    Snake(LinkedList<Integer> body) {
+
 
 
     }
