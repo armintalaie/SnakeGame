@@ -86,12 +86,13 @@ public class Controller {
                 new_x++;
                 break;
         }
-
+        System.out.println("meow");
         SnakeCell cell = new SnakeCell(new_x, new_y);
         head.setNext(cell);
         head = cell;
-        tail = tail.getNext();
         gameMap.moveSnake(head, tail);
+        tail = tail.getNext();
+
 
     }
 }

@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -30,11 +31,34 @@ public class GUI extends Application {
         updateGrid(pane);
         Scene scene = new Scene(pane, 820, 820);
 
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, (key)-> {
+            switch (key.getCode().toString()){
+                case "UP":
+                    game.move(Controller.Dir.UP);
+                    updateGrid(pane);
+                    break;
+                case "DOWN":
+                    game.move(Controller.Dir.DOWN);
+                    updateGrid(pane);
+                    break;
+                case "RIGHT":
+                    game.move(Controller.Dir.RIGHT);
+                    updateGrid(pane);
+                    break;
+                case "LEFT":
+                    game.move(Controller.Dir.LEFT);
+                    updateGrid(pane);
+                    break;
 
 
-
+            }
+                });
         primaryStage.setScene(scene);
         primaryStage.show();
+
+
+
+
 
 
 
