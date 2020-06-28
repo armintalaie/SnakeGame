@@ -10,6 +10,7 @@ public class Controller {
     public final int WIDTH = 20;
     public final int HEIGHT = 20;
     public enum Dir {UP, LEFT, RIGHT, DOWN}
+    public enum Status{LEVELUP, LOSE, CONTINUE}
 
     public GameMap getGameMap() {
         return gameMap;
@@ -68,7 +69,7 @@ public class Controller {
 
     }
 
-    public void move(Dir dir) {
+    public Status move(Dir dir) {
         int new_x = head.getX();
         int new_y = head.getY();
 
@@ -86,13 +87,19 @@ public class Controller {
                 new_x++;
                 break;
         }
-        System.out.println("meow");
+
         SnakeCell cell = new SnakeCell(new_x, new_y);
         head.setNext(cell);
         head = cell;
-        gameMap.moveSnake(head, tail);
+        Status status = gameMap.moveSnake(head, tail);
         tail = tail.getNext();
 
+        if (status == Status.LEVELUP){
+            gameMap.fillGrid(4);
+
+        }
+
+        return status;
 
     }
 }

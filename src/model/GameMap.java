@@ -1,5 +1,7 @@
 package model;
 
+import controller.Controller;
+
 import java.util.EmptyStackException;
 import java.util.LinkedList;
 import java.util.Random;
@@ -64,11 +66,16 @@ public class GameMap {
         return grid;
     }
 
-    public boolean moveSnake(SnakeCell head, SnakeCell tail) {
-        if (grid[head.getY()][head.getX()] == TRAP || grid[tail.getY()][tail.getX()] == TRAP)
-            return false;
+    public Controller.Status moveSnake(SnakeCell head, SnakeCell tail) {
+        if (grid[head.getY()][head.getX()] == TRAP || grid[tail.getY()][tail.getX()] == TRAP ||
+            head.getY() > WIDTH || head.getY() < 0 || head.getX() > HEIGHT || head.getX() < 0)
+            return Controller.Status.LOSE;
+        if (grid[head.getY()][head.getX()] == GOAL)
+            return Controller.Status.LEVELUP;
         grid[head.getY()][head.getX()] = SNAKECELL;
         grid[tail.getY()][tail.getX()] = EMPTY;
-        return true;
+
+        return Controller.Status.CONTINUE;
+
     }
 }
