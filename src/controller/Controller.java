@@ -9,7 +9,13 @@ public class Controller {
 
     public final int WIDTH = 20;
     public final int HEIGHT = 20;
-    GameMap gameMap;
+    public enum Dir {UP, LEFT, RIGHT, DOWN}
+
+    public GameMap getGameMap() {
+        return gameMap;
+    }
+
+    private GameMap gameMap;
     SnakeCell head;
     SnakeCell tail;
 
@@ -59,6 +65,33 @@ public class Controller {
             System.out.println();
         }
 
+
+    }
+
+    public void move(Dir dir) {
+        int new_x = head.getX();
+        int new_y = head.getY();
+
+        switch (dir){
+            case UP:
+                new_y--;
+                break;
+            case DOWN:
+                new_y++;
+                break;
+            case LEFT:
+                new_x--;
+                break;
+            case RIGHT:
+                new_x++;
+                break;
+        }
+
+        SnakeCell cell = new SnakeCell(new_x, new_y);
+        head.setNext(cell);
+        head = cell;
+        tail = tail.getNext();
+        gameMap.moveSnake(head, tail);
 
     }
 }

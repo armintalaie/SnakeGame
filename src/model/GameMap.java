@@ -6,10 +6,10 @@ import java.util.Random;
 
 public class GameMap {
 
-    public final int EMPTY = 0;
-    public final int TRAP = 1;
-    public final int GOAL = 2;
-    public final int SNAKECELL = 3;
+    public static final int EMPTY = 0;
+    public static final int TRAP = 1;
+    public static final int GOAL = 2;
+    public static final int SNAKECELL = 3;
 
 
     private int WIDTH;
@@ -61,5 +61,10 @@ public class GameMap {
 
     public int[][] getGrid() {
         return grid;
+    }
+
+    public void moveSnake(SnakeCell head, SnakeCell tail) {
+        grid[head.getX()][head.getY()] = SNAKECELL;
+        grid[tail.getX()][tail.getY()] = EMPTY;
     }
 }
