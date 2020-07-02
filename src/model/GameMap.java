@@ -33,21 +33,13 @@ public class GameMap {
 
 
     public void initializeGrid() {
-
-
+        
         for (int i = 0; i < this.WIDTH; i++)
             for (int j = 0; j < this.HEIGHT; j++) {
                 if (grid[j][i] != SNAKECELL)
                     grid[j][i] = EMPTY;
             }
-        for (int i = 0; i < this.WIDTH; i++) {
-            for (int j = 0; j < this.HEIGHT; j++) {
-                System.out.print(grid[i][j] + " ");
-            }
-            System.out.println("\n");
-        }
 
-        System.out.println("asdfghjlkjhgfdsasdfghjkjhgfdsawqsdfghyjklkjhgfrdewsertyui");
     }
 
     public void fillGrid(int trapNum) {
@@ -79,15 +71,29 @@ public class GameMap {
 
     public Controller.Status moveSnake(SnakeCell head, SnakeCell tail) {
         Controller.Status nextStatus = Controller.Status.CONTINUE;
-        if (grid[head.getY()][head.getX()] == TRAP || grid[tail.getY()][tail.getX()] == TRAP ||
-            head.getY() > WIDTH || head.getY() < 0 || head.getX() > HEIGHT || head.getX() < 0)
+
+        if (lose(head, tail))
             nextStatus =  Controller.Status.LOSE;
         if (grid[head.getY()][head.getX()] == GOAL)
             nextStatus =  Controller.Status.LEVELUP;
+
         grid[head.getY()][head.getX()] = SNAKECELL;
         grid[tail.getY()][tail.getX()] = EMPTY;
 
         return nextStatus;
+
+    }
+
+
+    private boolean lose(SnakeCell head, SnakeCell tail) {
+        boolean lose = false;
+        if (grid[head.getY()][head.getX()] == TRAP || grid[tail.getY()][tail.getX()] == TRAP ||
+                head.getY() > WIDTH || head.getY() < 0 || head.getX() > HEIGHT || head.getX() < 0)
+            lose = true;
+        if (grid[head.getY()][head.getX()] == SNAKECELL)
+            lose = true;
+
+        return lose;
 
     }
 }
