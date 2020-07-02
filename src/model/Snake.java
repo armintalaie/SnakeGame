@@ -11,6 +11,5 @@ public class Snake {
     Snake(LinkedList<Integer> body) {
 
 
-
     }
 }

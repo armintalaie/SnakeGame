@@ -7,6 +7,12 @@ import java.util.LinkedList;
 import java.util.Random;
 
 
+//TODO: combine width and height
+//TODO: add enum for cell types
+//TODO: implement score
+//TODO: implement life
+
+
 public class GameMap {
 
     public static final int EMPTY = 0;
@@ -20,8 +26,6 @@ public class GameMap {
     private int[][] grid;
 
 
-
-
     public GameMap(int width, int height) {
         this.WIDTH = width;
         this.HEIGHT = height;
@@ -31,9 +35,8 @@ public class GameMap {
     }
 
 
-
     public void initializeGrid() {
-        
+
         for (int i = 0; i < this.WIDTH; i++)
             for (int j = 0; j < this.HEIGHT; j++) {
                 if (grid[j][i] != SNAKECELL)
@@ -73,9 +76,9 @@ public class GameMap {
         Controller.Status nextStatus = Controller.Status.CONTINUE;
 
         if (lose(head, tail))
-            nextStatus =  Controller.Status.LOSE;
+            nextStatus = Controller.Status.LOSE;
         if (grid[head.getY()][head.getX()] == GOAL)
-            nextStatus =  Controller.Status.LEVELUP;
+            nextStatus = Controller.Status.LEVELUP;
 
         grid[head.getY()][head.getX()] = SNAKECELL;
         grid[tail.getY()][tail.getX()] = EMPTY;

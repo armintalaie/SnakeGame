@@ -17,11 +17,21 @@ import model.SnakeCell;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+//TODO: add transition animation for leveling up or losing
+//TODO: add different shapes for snake's tail and head
+//TODO: add top bar for score and lives
+//TODO: show ranking
+//TODO: add cute animation and graphics
+//  TODO: snake eyes
+//  TODO: win lose and trap sounds
+//  TODO: bouncy goal
+//  TODO: colorful grid
+//  TODO: move in direction until changed
 
 public class GUI extends Application {
 
-    Controller game = new Controller();
-    Scene scene;
+    private Controller game = new Controller();
+    private Scene scene;
 
 
     @Override
@@ -41,6 +51,7 @@ public class GUI extends Application {
     }
 
     private void playGame(GridPane pane) {
+
 
         boolean resume = true;
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (key) -> {

@@ -29,7 +29,7 @@ public class SnakeCell {
         this.next = next;
     }
 
-    public SnakeCell(int x, int y){
+    public SnakeCell(int x, int y) {
         this.x = x;
         this.y = y;
     }

@@ -3,14 +3,21 @@ package controller;
 import model.GameMap;
 import model.SnakeCell;
 
+//TODO: fix status name for other classes when using it
+//TODO: clean up move method
+//TODO: increase number of traps in each round
+//TODO: add rankings
+//TODO: add ability to save game
 
 
 public class Controller {
 
     public final int WIDTH = 20;
     public final int HEIGHT = 20;
-    public enum Dir {UP, LEFT, RIGHT, DOWN}
-    public enum Status{LEVELUP, LOSE, CONTINUE}
+
+    public enum Dir {UP, LEFT, RIGHT, DOWN, NONE}
+
+    public enum Status {LEVELUP, LOSE, CONTINUE}
 
     public GameMap getGameMap() {
         return gameMap;
@@ -73,7 +80,7 @@ public class Controller {
         int new_x = head.getX();
         int new_y = head.getY();
 
-        switch (dir){
+        switch (dir) {
             case UP:
                 new_y--;
                 break;
@@ -94,7 +101,7 @@ public class Controller {
         Status status = gameMap.moveSnake(head, tail);
         tail = tail.getNext();
 
-        if (status == Status.LEVELUP){
+        if (status == Status.LEVELUP) {
             gameMap.initializeGrid();
             gameMap.fillGrid(4);
 
