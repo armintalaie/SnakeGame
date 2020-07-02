@@ -25,6 +25,7 @@ public class GameMap {
     public GameMap(int width, int height) {
         this.WIDTH = width;
         this.HEIGHT = height;
+        this.grid = new int[this.WIDTH][this.HEIGHT];
         initializeGrid();
 
     }
@@ -32,11 +33,21 @@ public class GameMap {
 
 
     public void initializeGrid() {
-        this.grid = new int[this.WIDTH][this.HEIGHT];
+
 
         for (int i = 0; i < this.WIDTH; i++)
-            for (int j = 0; j < this.HEIGHT; j++)
-                grid[i][j] = EMPTY;
+            for (int j = 0; j < this.HEIGHT; j++) {
+                if (grid[j][i] != SNAKECELL)
+                    grid[j][i] = EMPTY;
+            }
+        for (int i = 0; i < this.WIDTH; i++) {
+            for (int j = 0; j < this.HEIGHT; j++) {
+                System.out.print(grid[i][j] + " ");
+            }
+            System.out.println("\n");
+        }
+
+        System.out.println("asdfghjlkjhgfdsasdfghjkjhgfdsawqsdfghyjklkjhgfrdewsertyui");
     }
 
     public void fillGrid(int trapNum) {
@@ -67,15 +78,16 @@ public class GameMap {
     }
 
     public Controller.Status moveSnake(SnakeCell head, SnakeCell tail) {
+        Controller.Status nextStatus = Controller.Status.CONTINUE;
         if (grid[head.getY()][head.getX()] == TRAP || grid[tail.getY()][tail.getX()] == TRAP ||
             head.getY() > WIDTH || head.getY() < 0 || head.getX() > HEIGHT || head.getX() < 0)
-            return Controller.Status.LOSE;
+            nextStatus =  Controller.Status.LOSE;
         if (grid[head.getY()][head.getX()] == GOAL)
-            return Controller.Status.LEVELUP;
+            nextStatus =  Controller.Status.LEVELUP;
         grid[head.getY()][head.getX()] = SNAKECELL;
         grid[tail.getY()][tail.getX()] = EMPTY;
 
-        return Controller.Status.CONTINUE;
+        return nextStatus;
 
     }
 }

@@ -24,8 +24,8 @@ public class Controller {
         gameMap = new GameMap(WIDTH, HEIGHT);
         makeSnake(8);
         gameMap.fillGrid(4);
-        printMap();
-        System.out.println(head);
+        //printMap();
+        //System.out.println(head);
     }
 
     public void runGame() {
@@ -95,10 +95,12 @@ public class Controller {
         tail = tail.getNext();
 
         if (status == Status.LEVELUP){
+            gameMap.initializeGrid();
             gameMap.fillGrid(4);
 
         }
-
+        //printMap();
+        //System.out.println("\n\n\n");
         return status;
 
     }
