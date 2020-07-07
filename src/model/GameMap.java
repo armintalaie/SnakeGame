@@ -9,8 +9,9 @@ import java.util.Random;
 
 //TODO: combine width and height
 //TODO: add enum for cell types
-//TODO: implement score
-//TODO: implement life
+//-------------------------------
+//TODO: implement score [done]
+//TODO: implement life [done]
 
 
 public class GameMap {

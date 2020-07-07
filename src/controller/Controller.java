@@ -3,12 +3,12 @@ package controller;
 import model.GameMap;
 import model.SnakeCell;
 
-//TODO: fix status name for other classes when using it
-//TODO: clean up move method
-//TODO: increase number of traps in each round
+
 //TODO: add rankings
 //TODO: add ability to save game
-
+//-------------------------------
+//TODO: fix status name for other classes when using it [done]
+//TODO: increase number of traps in each round [done]
 
 public class Controller {
 
