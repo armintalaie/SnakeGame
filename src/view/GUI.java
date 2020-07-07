@@ -36,7 +36,6 @@ import java.io.FileNotFoundException;
 //-------------------------------
 //TODO: add top bar for score and lives [done]
 //  TODO: colorful grid [done]
-//  TODO: move in direction until changed [done]
 
 public class GUI extends Application {
 
