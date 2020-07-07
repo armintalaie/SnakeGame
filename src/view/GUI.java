@@ -12,6 +12,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import model.GameMap;
+import model.Snake;
 import model.SnakeCell;
 
 import java.io.FileInputStream;
@@ -30,16 +31,23 @@ import java.io.FileNotFoundException;
 
 public class GUI extends Application {
 
-    private Controller game = new Controller();
+    public enum Dir {UP, LEFT, RIGHT, DOWN, NONE}
+
+    //private Controller game = new Controller();
     private Scene scene;
+    private GameMap gameMap;
+    GridPane pane = new GridPane();
+    public final int WIDTH = 20;
+    public final int HEIGHT = 20;
+    SnakeCell head;
+    SnakeCell tail;
 
 
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        GridPane pane = new GridPane();
         createGame(pane);
-        updateGrid(pane, Controller.Status.CONTINUE);
+        updateGrid(pane);
         scene = new Scene(pane, 820, 820);
 
 
@@ -57,16 +65,20 @@ public class GUI extends Application {
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (key) -> {
             switch (key.getCode().toString()) {
                 case "UP":
-                    updateGrid(pane, game.move(Controller.Dir.UP));
+                    move(Dir.UP);
+                    //updateGrid(pane);
                     break;
                 case "DOWN":
-                    updateGrid(pane, game.move(Controller.Dir.DOWN));
+                    move(Dir.DOWN);
+                    //updateGrid(pane, game.move(Controller.Dir.DOWN));
                     break;
                 case "RIGHT":
-                    updateGrid(pane, game.move(Controller.Dir.RIGHT));
+                    move(Dir.RIGHT);
+                    //updateGrid(pane, game.move(Controller.Dir.RIGHT));
                     break;
                 case "LEFT":
-                    updateGrid(pane, game.move(Controller.Dir.LEFT));
+                    move(Dir.LEFT);
+                    //updateGrid(pane, game.move(Controller.Dir.LEFT));
                     break;
             }
 
@@ -75,57 +87,96 @@ public class GUI extends Application {
 
     }
 
-    private void updateGrid(GridPane pane, Controller.Status status) {
+    private void move(Dir dir) {
 
-        pane.getChildren().clear();
-        if (status == Controller.Status.LOSE) {
-            Rectangle rec = new Rectangle(820, 820);
-            rec.setFill(Color.RED);
-            pane.getChildren().add(rec);
-            return;
-        } else {
-            if (status == Controller.Status.LEVELUP) {
-                Rectangle rec = new Rectangle(820, 820);
-                rec.setFill(Color.BLUEVIOLET);
-                pane.getChildren().add(rec);
-                updateGrid(pane, Controller.Status.CONTINUE);
-            } else {
+        int new_x = head.getX();
+        int new_y = head.getY();
 
-                for (int i = 0; i < game.WIDTH; i++)
-                    for (int j = 0; j < game.HEIGHT; j++) {
-                        Rectangle rec = new Rectangle(40, 40);
-                        switch (game.getGameMap().getGrid()[i][j]) {
-                            case GameMap.EMPTY:
-                                rec.setFill(Color.BLACK);
-                                break;
-                            case GameMap.GOAL:
-                                rec.setFill(Color.BLUEVIOLET);
-                                break;
-                            case GameMap.SNAKECELL:
-                                rec.setFill(Color.GREEN);
-                                break;
-                            case GameMap.TRAP:
-                                rec.setFill(Color.ORANGE);
-                        }
-
-                        pane.add(rec, j, i);
-                    }
-
-            }
+        switch (dir) {
+            case UP:
+                new_y--;
+                break;
+            case DOWN:
+                new_y++;
+                break;
+            case LEFT:
+                new_x--;
+                break;
+            case RIGHT:
+                new_x++;
+                break;
         }
+
+        SnakeCell cell = new SnakeCell(new_x, new_y);
+        head.setNext(cell);
+        head = cell;
+        gameMap.moveSnake(head, tail);
+
+        if(!gameMap.levelUp) {
+            tail = tail.getNext();
+        }
+
+
+        if (gameMap.levelUp || gameMap.refreshMap) {
+            gameMap.levelUp = false;
+            gameMap.initializeGrid();
+            gameMap.fillGrid(4);
+        }
+        System.out.println("sss");
+        updateGrid(pane);
 
 
     }
 
+    private void updateGrid(GridPane pane) {
+
+        pane.getChildren().clear();
+
+        if (gameMap.health <= 0) {
+            Rectangle rec = new Rectangle(820, 820);
+            rec.setFill(Color.RED);
+            pane.getChildren().add(rec);
+            return;
+        }
+
+
+        for (int i = 0; i < WIDTH; i++)
+            for (int j = 0; j < HEIGHT; j++) {
+                Rectangle rec = new Rectangle(40, 40);
+                switch (gameMap.getGrid()[i][j]) {
+                    case GameMap.EMPTY:
+                        rec.setFill(Color.BLACK);
+                        break;
+                    case GameMap.GOAL:
+                        rec.setFill(Color.BLUEVIOLET);
+                        break;
+                    case GameMap.SNAKECELL:
+                        rec.setFill(Color.GREEN);
+                        break;
+                    case GameMap.TRAP:
+                        rec.setFill(Color.ORANGE);
+                }
+
+                pane.add(rec, j, i);
+            }
+
+
+    }
+
+
     private void createGame(GridPane pane) throws FileNotFoundException {
+
+        gameMap = new GameMap(WIDTH, HEIGHT);
+        makeSnake(8);
+        gameMap.fillGrid(4);
 
 
         pane.setHgap(1);
         pane.setVgap(1);
 
 
-        for (int i = 0; i < game.WIDTH; i++)
-            for (int j = 0; j < game.HEIGHT; j++) {
+        for (int i = 0; i < WIDTH; i++)
+            for (int j = 0; j < HEIGHT; j++) {
                 ImageView img = new ImageView(new Image(new FileInputStream("resources/game_cell.jpg")));
                 img.setFitWidth(800 / 20);
                 img.setFitHeight(800 / 20);
@@ -136,4 +187,30 @@ public class GUI extends Application {
 
 
     }
+
+    public void makeSnake(int length) {
+
+        SnakeCell next = null;
+        SnakeCell head = null;
+
+        int x = this.WIDTH / 2;
+        int y = this.HEIGHT / 2;
+
+        for (int i = 0; i < length; i++) {
+            SnakeCell cell = new SnakeCell(x - i, y);
+            gameMap.getGrid()[y][x - i] = gameMap.SNAKECELL;
+            cell.setNext(next);
+            next = cell;
+
+
+            if (head == null)
+                head = cell;
+
+        }
+
+        this.head = head;
+        this.tail = next;
+
+    }
+
 }

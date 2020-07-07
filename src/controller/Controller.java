@@ -98,17 +98,16 @@ public class Controller {
         SnakeCell cell = new SnakeCell(new_x, new_y);
         head.setNext(cell);
         head = cell;
-        Status status = gameMap.moveSnake(head, tail);
+        gameMap.moveSnake(head, tail);
         tail = tail.getNext();
 
-        if (status == Status.LEVELUP) {
+        if (Status.LEVELUP == Status.LEVELUP) {
             gameMap.initializeGrid();
             gameMap.fillGrid(4);
 
         }
         //printMap();
         //System.out.println("\n\n\n");
-        return status;
-
+        return Status.LEVELUP;
     }
 }

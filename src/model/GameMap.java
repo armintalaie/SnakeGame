@@ -21,6 +21,10 @@ public class GameMap {
     public static final int SNAKECELL = 3;
 
 
+    public int level = 1;
+    public int health = 5;
+    public boolean levelUp = false;
+    public boolean refreshMap = true;
     private int WIDTH;
     private int HEIGHT;
     private int[][] grid;
@@ -46,6 +50,7 @@ public class GameMap {
     }
 
     public void fillGrid(int trapNum) {
+        trapNum = trapNum + this.level;
         Random random = new Random(System.currentTimeMillis());
         boolean chosenGoal = false;
 
@@ -65,6 +70,7 @@ public class GameMap {
             }
 
         }
+        this.refreshMap = false;
 
     }
 
@@ -72,31 +78,45 @@ public class GameMap {
         return grid;
     }
 
-    public Controller.Status moveSnake(SnakeCell head, SnakeCell tail) {
-        Controller.Status nextStatus = Controller.Status.CONTINUE;
+    public void moveSnake(SnakeCell head, SnakeCell tail) {
 
-        if (lose(head, tail))
-            nextStatus = Controller.Status.LOSE;
-        if (grid[head.getY()][head.getX()] == GOAL)
-            nextStatus = Controller.Status.LEVELUP;
+        lose(head, tail);
+
+        if (this.health <= 0)
+            return;
+
+        if (grid[head.getY()][head.getX()] == GOAL) {
+            this.refreshMap = true;
+            this.levelUp = true;
+            this.level++;
+
+        } else {
+            grid[tail.getY()][tail.getX()] = EMPTY;
+        }
 
         grid[head.getY()][head.getX()] = SNAKECELL;
-        grid[tail.getY()][tail.getX()] = EMPTY;
 
-        return nextStatus;
+
 
     }
 
 
     private boolean lose(SnakeCell head, SnakeCell tail) {
-        boolean lose = false;
         if (grid[head.getY()][head.getX()] == TRAP || grid[tail.getY()][tail.getX()] == TRAP ||
-                head.getY() > WIDTH || head.getY() < 0 || head.getX() > HEIGHT || head.getX() < 0)
-            lose = true;
-        if (grid[head.getY()][head.getX()] == SNAKECELL)
-            lose = true;
+                head.getY() > WIDTH || head.getY() < 0 || head.getX() > HEIGHT || head.getX() < 0) {
+            this.health--;
+            this.refreshMap = true;
+            return true;
+        }
+        if (grid[head.getY()][head.getX()] == SNAKECELL) {
+            this.health--;
+            this.refreshMap = true;
+            return true;
+        }
 
-        return lose;
+
+        return false;
+
 
     }
 }
