@@ -102,21 +102,17 @@ public class GameMap {
     }
 
 
-    private boolean lose(SnakeCell head, SnakeCell tail) {
+    private void lose(SnakeCell head, SnakeCell tail) {
         if (grid[head.getY()][head.getX()] == TRAP || grid[tail.getY()][tail.getX()] == TRAP ||
                 head.getY() > WIDTH || head.getY() < 0 || head.getX() > HEIGHT || head.getX() < 0) {
             this.health--;
             this.refreshMap = true;
-            return true;
+            return;
         }
         if (grid[head.getY()][head.getX()] == SNAKECELL) {
             this.health--;
             this.refreshMap = true;
-            return true;
         }
-
-
-        return false;
 
 
     }

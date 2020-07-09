@@ -22,6 +22,8 @@ import java.awt.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+//TODO: add listeners
+//TODO: add starting screen
 //TODO: cleanup code
 //  TODO: constants for width and height
 //  TODO: shorten methods, (move some methods out of the GUI class)
@@ -115,13 +117,13 @@ public class GUI extends Application {
 
                         }
                     });
-                    Thread.sleep(50);
+                    Thread.sleep(20);
                 }
 
             }
         };
         Thread th2 = new Thread(task2);
-        th2.setDaemon(true);
+
         th2.start();
 
     }
