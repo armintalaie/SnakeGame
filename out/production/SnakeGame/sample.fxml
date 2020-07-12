@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.GUI">
+   <children>
+      <Accordion layoutX="94.0" layoutY="105.0">
+        <panes>
+          <TitledPane animated="false" text="untitled 1" />
+          <TitledPane animated="false" text="untitled 2" />
+        </panes>
+      </Accordion>
+   </children>
+</AnchorPane>

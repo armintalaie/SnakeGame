@@ -1,10 +1,13 @@
 package view;
 
 import controller.Controller;
+import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Label;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
@@ -12,8 +15,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.*;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import model.GameMap;
 import model.Snake;
 import model.SnakeCell;
@@ -62,15 +68,41 @@ public class GUI extends Application {
 
         borderPane = new BorderPane();
         topBar = new HBox();
+
+
+
+        //updateGrid(pane);
+        scene = new Scene(root, 600, 670);
         createGame(pane);
-        updateGrid(pane);
-        scene = new Scene(borderPane, 600, 670);
+
+
         scene.getStylesheets().add("view/stylesheet.css");
         primaryStage.setScene(scene);
         primaryStage.show();
-        playGame();
 
-        Task task = new Task<Void>() {
+        //playGame();
+        root.setPrefWidth(800);
+        root.setPrefHeight(800);
+
+        Button button = new Button("aa");
+        root.getChildren().add(button);
+        //Instantiating the path class
+
+        Path path = new Path();
+        path.getElements().add (new MoveTo (button.getLayoutX(), button.getLayoutY()));
+        path.getElements().add(new LineTo(300f, 30f));
+        PathTransition pathTransition = new PathTransition();
+        pathTransition.setDuration(Duration.seconds(4));
+        pathTransition.setNode(button);
+        pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
+        pathTransition.setPath(path);
+        pathTransition.play();
+
+
+
+
+
+ /*       Task task = new Task<Void>() {
             @Override
             public Void call() throws Exception {
 
@@ -89,9 +121,19 @@ public class GUI extends Application {
         };
         Thread th = new Thread(task);
         th.setDaemon(true);
-        th.start();
+        th.start();*/
 
-        Task task2 = new Task<Void>() {
+        new AnimationTimer() {
+            public void handle(long currentNanoTime) {
+               /* try {
+                   // updateGrid(pane);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }*/
+            }
+        }.start();
+
+        /*Task task2 = new Task<Void>() {
             @Override
             public Void call() throws Exception {
 
@@ -124,7 +166,7 @@ public class GUI extends Application {
         };
         Thread th2 = new Thread(task2);
 
-        th2.start();
+        th2.start();*/
 
     }
 
@@ -233,7 +275,7 @@ public class GUI extends Application {
         Image temp = new Image(new FileInputStream("resources/green_cell.jpg"));
         Image headS = new Image(new FileInputStream("resources/game_cell.jpg"));
 
-        for (int i = 0; i < WIDTH; i++)
+        for (int i = 1; i < WIDTH; i++)
             for (int j = 0; j < HEIGHT; j++) {
                 boolean ok = false;
                 Rectangle rec = new Rectangle(40, 40);
@@ -289,7 +331,8 @@ public class GUI extends Application {
         makeSnake(4);
         gameMap.fillGrid(4);
         root.getChildren().add(pane);
-        borderPane.setCenter(root);
+        layoutGrid(pane);
+       // borderPane.setCenter(root);
 
     }
 
@@ -310,11 +353,41 @@ public class GUI extends Application {
 
             if (head == null)
                 head = cell;
-
         }
 
         this.head = head;
         this.tail = next;
+    }
+
+
+    private void layoutGrid(GridPane pane) throws FileNotFoundException {
+
+        pane.getChildren().clear();
+
+        if (gameMap.health <= 0) {
+            Rectangle rec = new Rectangle(620, 620);
+            rec.setFill(Color.RED);
+            pane.getChildren().add(rec);
+            return;
+        }
+
+        ColorAdjust colorAdjust = new ColorAdjust();
+        colorAdjust.setBrightness(-0.1);
+
+        Image temp = new Image(new FileInputStream("resources/green_cell.jpg"));
+
+        for (int i = 1; i < WIDTH; i++)
+            for (int j = 0; j < HEIGHT; j++) {
+                boolean ok = false;
+                ImageView img = new ImageView(temp);
+                if ((i + j) % 2 == 0) {
+                    img.setEffect(colorAdjust);
+                }
+                img.setFitWidth(40);
+                img.setFitHeight(40);
+                pane.add(img, j, i);
+            }
+
     }
 
 }
