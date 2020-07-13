@@ -1,6 +1,6 @@
 package view;
 
-import controller.Controller;
+
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -63,12 +63,14 @@ public class GUI extends Application {
     BorderPane borderPane;
     Pane root = new Pane();
 
+    private SnakeBody headOfSnake;
+    private SnakeBody tailOfSnake;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
 
         borderPane = new BorderPane();
         topBar = new HBox();
-
 
 
         //updateGrid(pane);
@@ -83,13 +85,14 @@ public class GUI extends Application {
         //playGame();
         root.setPrefWidth(800);
         root.setPrefHeight(800);
+        //playGame();
 
         Button button = new Button("aa");
         root.getChildren().add(button);
         //Instantiating the path class
 
         Path path = new Path();
-        path.getElements().add (new MoveTo (button.getLayoutX(), button.getLayoutY()));
+        path.getElements().add(new MoveTo(button.getLayoutX(), button.getLayoutY()));
         path.getElements().add(new LineTo(300f, 30f));
         PathTransition pathTransition = new PathTransition();
         pathTransition.setDuration(Duration.seconds(4));
@@ -98,75 +101,21 @@ public class GUI extends Application {
         pathTransition.setPath(path);
         pathTransition.play();
 
+        showSnake();
+
+        playGame();
 
 
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.8), event -> {
 
 
- /*       Task task = new Task<Void>() {
-            @Override
-            public Void call() throws Exception {
+            move();
 
-                while (true) {
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (gameMap.health > 0)
-                                move();
-                        }
-                    });
-                    Thread.sleep(150);
-                }
+        }));
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
 
-            }
-        };
-        Thread th = new Thread(task);
-        th.setDaemon(true);
-        th.start();*/
 
-        new AnimationTimer() {
-            public void handle(long currentNanoTime) {
-               /* try {
-                   // updateGrid(pane);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }*/
-            }
-        }.start();
-
-        /*Task task2 = new Task<Void>() {
-            @Override
-            public Void call() throws Exception {
-
-                while (true) {
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-
-                                updateGrid(pane);
-                            } catch (FileNotFoundException e) {
-                                e.printStackTrace();
-                            }
-
-                            level = new Label("LEVEL: " + Integer.toString(gameMap.level));
-                            Label health = new Label("HEALTH: " + Integer.toString(gameMap.health));
-                            level.setPrefSize(300, 70);
-                            health.setPrefSize(300, 70);
-                            topBar.getChildren().clear();
-                            topBar.getChildren().add(level);
-                            topBar.getChildren().add(health);
-                            borderPane.setTop(topBar);
-
-                        }
-                    });
-                    Thread.sleep(20);
-                }
-
-            }
-        };
-        Thread th2 = new Thread(task2);
-
-        th2.start();*/
 
     }
 
@@ -197,6 +146,41 @@ public class GUI extends Application {
             }
 
         });
+    }
+
+    private void showSnake() {
+        boolean isHead = false;
+        SnakeCell body = tail;
+        SnakeBody prev = null;
+
+        while (body != null) {
+            if (body.getNext() == null)
+                isHead = true;
+            int x = body.getX();
+            int y = body.getY();
+            System.out.println(x + "  " + y);
+            if (isHead) {
+                headOfSnake = new SnakeBody(body, isHead);
+                root.getChildren().add(headOfSnake.shape);
+                isHead = false;
+                prev.next = headOfSnake;
+            } else {
+
+
+                SnakeBody others = new SnakeBody(body, false);
+                if (prev == null)
+                    prev = others;
+                else
+                    prev.next = others;
+                root.getChildren().add(others.shape);
+
+                prev = others;
+            }
+
+            body = body.getNext();
+
+
+        }
     }
 
     private void move() {
@@ -239,10 +223,14 @@ public class GUI extends Application {
             new_y += this.HEIGHT;
         }
 
+        System.out.println("aaa " + new_x+  "   " + new_y);
         SnakeCell cell = new SnakeCell(new_x, new_y);
         head.setNext(cell);
         head = cell;
         gameMap.moveSnake(head, tail);
+
+
+        displayMove(head);
 
         if (!gameMap.levelUp) {
             tail = tail.getNext();
@@ -254,6 +242,25 @@ public class GUI extends Application {
             gameMap.fillGrid(4);
 
         }
+
+
+    }
+
+    private void displayMove(SnakeCell head) {
+        System.out.println("hello");
+        SnakeBody newHead = new SnakeBody(head, true);
+        headOfSnake.next = newHead;
+        root.getChildren().add(newHead.shape);
+        Path path = new Path();
+        path.getElements().add(new MoveTo(headOfSnake.shape.getX(), headOfSnake.shape.getY() ));
+        path.getElements().add(new LineTo(newHead.shape.getX() , newHead.shape.getY() ));
+        PathTransition pathTransition = new PathTransition();
+        pathTransition.setDuration(Duration.seconds(0.4));
+        pathTransition.setNode(newHead.shape);
+        pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
+        pathTransition.setPath(path);
+        pathTransition.play();
+        headOfSnake = newHead;
 
 
     }
@@ -332,7 +339,6 @@ public class GUI extends Application {
         gameMap.fillGrid(4);
         root.getChildren().add(pane);
         layoutGrid(pane);
-       // borderPane.setCenter(root);
 
     }
 

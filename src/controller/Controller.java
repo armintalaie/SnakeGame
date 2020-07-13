@@ -10,7 +10,7 @@ import model.SnakeCell;
 //TODO: fix status name for other classes when using it [done]
 //TODO: increase number of traps in each round [done]
 
-public class Controller {
+/*public class Controller {
 
     public final int WIDTH = 20;
     public final int HEIGHT = 20;
@@ -111,3 +111,4 @@ public class Controller {
         return Status.LEVELUP;
     }
 }
+*/
