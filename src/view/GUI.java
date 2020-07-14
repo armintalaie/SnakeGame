@@ -5,6 +5,8 @@ import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
@@ -66,15 +68,20 @@ public class GUI extends Application {
     private SnakeBody headOfSnake;
     private SnakeBody tailOfSnake;
 
+    private SnakeCell toMove = null;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
 
         borderPane = new BorderPane();
         topBar = new HBox();
 
+        borderPane.setCenter(root);
+        borderPane.setTop(topBar);
+
 
         //updateGrid(pane);
-        scene = new Scene(root, 600, 670);
+        scene = new Scene(borderPane, 800, 870);
         createGame(pane);
 
 
@@ -83,37 +90,53 @@ public class GUI extends Application {
         primaryStage.show();
 
         //playGame();
-        root.setPrefWidth(800);
-        root.setPrefHeight(800);
+        root.setPrefWidth(600);
+        root.setPrefHeight(600);
         //playGame();
 
-        Button button = new Button("aa");
-        root.getChildren().add(button);
         //Instantiating the path class
 
-        Path path = new Path();
-        path.getElements().add(new MoveTo(button.getLayoutX(), button.getLayoutY()));
-        path.getElements().add(new LineTo(300f, 30f));
-        PathTransition pathTransition = new PathTransition();
-        pathTransition.setDuration(Duration.seconds(4));
-        pathTransition.setNode(button);
-        pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
-        pathTransition.setPath(path);
-        pathTransition.play();
+
 
         showSnake();
-
         playGame();
 
 
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.8), event -> {
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.3), event -> {
 
 
             move();
 
+
         }));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
+
+        Task task = new Task<Void>() {
+            @Override
+            public Void call() throws Exception {
+
+                while (true) {
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (toMove != null) {
+                                displayMove(toMove, true);
+                                toMove = null;
+                            }
+                        }
+                    });
+                    Thread.sleep(250);
+                }
+
+            }
+        };
+        Thread th = new Thread(task);
+        th.setDaemon(true);
+        th.start();
+
+
+
 
 
 
@@ -154,43 +177,40 @@ public class GUI extends Application {
         SnakeBody prev = null;
 
         while (body != null) {
-            if (body.getNext() == null)
-                isHead = true;
-            int x = body.getX();
-            int y = body.getY();
-            System.out.println(x + "  " + y);
-            if (isHead) {
+            if (body.getNext() == null){
                 headOfSnake = new SnakeBody(body, isHead);
                 root.getChildren().add(headOfSnake.shape);
-                isHead = false;
                 prev.next = headOfSnake;
             } else {
 
 
                 SnakeBody others = new SnakeBody(body, false);
-                if (prev == null)
-                    prev = others;
-                else
+                if (prev != null)
                     prev.next = others;
+                else
+                    tailOfSnake = others;
                 root.getChildren().add(others.shape);
 
                 prev = others;
             }
 
             body = body.getNext();
-
-
         }
     }
 
     private void move() {
 
+
         Dir dir = this.curr;
-        if (dir == Dir.NONE)
+        if (dir == Dir.NONE || toMove != null)
             return;
+
+        resume = false;
 
         int new_x = head.getX();
         int new_y = head.getY();
+
+
 
         switch (dir) {
             case UP:
@@ -223,120 +243,100 @@ public class GUI extends Application {
             new_y += this.HEIGHT;
         }
 
-        System.out.println("aaa " + new_x+  "   " + new_y);
+
         SnakeCell cell = new SnakeCell(new_x, new_y);
-        head.setNext(cell);
-        head = cell;
-        gameMap.moveSnake(head, tail);
+        gameMap.moveSnake(cell, tail);
+        toMove = cell;
 
 
-        displayMove(head);
+
+
 
         if (!gameMap.levelUp) {
-            tail = tail.getNext();
+
         }
 
-        if (gameMap.levelUp || gameMap.refreshMap) {
+        /*if (gameMap.levelUp || gameMap.refreshMap) {
             gameMap.levelUp = false;
             gameMap.initializeGrid();
             gameMap.fillGrid(4);
 
-        }
+        }*/
 
 
     }
 
-    private void displayMove(SnakeCell head) {
-        System.out.println("hello");
+    private void displayMove(SnakeCell cell, boolean remove) {
+
         SnakeBody newHead = new SnakeBody(head, true);
-        headOfSnake.next = newHead;
-        root.getChildren().add(newHead.shape);
+
         Path path = new Path();
-        path.getElements().add(new MoveTo(headOfSnake.shape.getX(), headOfSnake.shape.getY() ));
-        path.getElements().add(new LineTo(newHead.shape.getX() , newHead.shape.getY() ));
+        Path removeTail = new Path();
+
+        path.getElements().add(new MoveTo(newHead.shape.getX()   +20 , newHead.shape.getY()  + 20 ));
+        path.getElements().add(new LineTo(cell.getX() * 40  + 20, cell.getY() * 40 + 20));
+
+        removeTail.getElements().add(new MoveTo(tailOfSnake.shape.getX()  + 20, tailOfSnake.shape.getY() + 20));
+        removeTail.getElements().add(new LineTo(tailOfSnake.next.shape.getX() + 20 , tailOfSnake.next.shape.getY() + 20));
+
+        root.getChildren().add(newHead.shape);
+
+        PathTransition pathTransition1 = new PathTransition();
         PathTransition pathTransition = new PathTransition();
-        pathTransition.setDuration(Duration.seconds(0.4));
+
+        pathTransition1.setDuration(Duration.seconds(0.28));
+        pathTransition.setDuration(Duration.seconds(0.28));
+
+        pathTransition1.setNode(tailOfSnake.shape);
         pathTransition.setNode(newHead.shape);
+        pathTransition1.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
         pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
+
         pathTransition.setPath(path);
-        pathTransition.play();
-        headOfSnake = newHead;
+        pathTransition1.setPath(removeTail);
 
 
-    }
 
-    private void updateGrid(GridPane pane) throws FileNotFoundException {
+        if (remove) {
+            pathTransition.play();
+            pathTransition1.play();
+            pathTransition1.setOnFinished(new EventHandler<ActionEvent>() {
 
-        pane.getChildren().clear();
+                @Override
+                public void handle(ActionEvent event) {
 
-        if (gameMap.health <= 0) {
-            Rectangle rec = new Rectangle(620, 620);
-            rec.setFill(Color.RED);
-            pane.getChildren().add(rec);
-            return;
+                    root.getChildren().remove(tailOfSnake.shape);
+                    tailOfSnake = tailOfSnake.next;
+                    tail = tail.getNext();
+                }
+            });
         }
 
-        ColorAdjust colorAdjust = new ColorAdjust();
-        colorAdjust.setBrightness(-0.1);
+        pathTransition.setOnFinished(new EventHandler<ActionEvent>() {
 
-        Image temp = new Image(new FileInputStream("resources/green_cell.jpg"));
-        Image headS = new Image(new FileInputStream("resources/game_cell.jpg"));
+            @Override
+            public void handle(ActionEvent event) {
+                head.setNext(cell);
+                head = cell;
+                SnakeBody newer = new SnakeBody(head, true);
+                root.getChildren().add(newer.shape);
+                root.getChildren().remove(newHead.shape);
 
-        for (int i = 1; i < WIDTH; i++)
-            for (int j = 0; j < HEIGHT; j++) {
-                boolean ok = false;
-                Rectangle rec = new Rectangle(40, 40);
-                ImageView img = new ImageView(temp);
-                if ((i + j) % 2 == 0) {
-                    img.setEffect(colorAdjust);
-                    rec.setEffect(colorAdjust);
-                }
-                img.setFitWidth(40);
-                img.setFitHeight(40);
-                rec.setFill(Color.GREEN);
-
-                switch (gameMap.getGrid()[i][j]) {
-                    case GameMap.EMPTY:
-                        ok = true;
-                        break;
-                    case GameMap.GOAL:
-                        rec.setFill(Color.BLUEVIOLET);
-                        break;
-                    case GameMap.SNAKECELL:
-                        StackPane pane1 = new StackPane();
-                        rec.setFill(Color.BLUE);
-                        if (head.getY() == i && head.getX() == j) {
-                            ImageView im2 = new ImageView(headS);
-                            im2.setStyle("-fx-background-color: red;");
-                            im2.setFitWidth(40);
-                            im2.setFitHeight(40);
-                            pane1.getChildren().add(im2);
-                            pane.add(pane1, j, i);
-                            break;
-                        }
-
-                        break;
-                    case GameMap.TRAP:
-                        rec.setFill(Color.ORANGE);
-                }
-                if (head.getY() == i && head.getX() == j) {
-                    continue;
-                }
-
-                if (ok)
-                    pane.add(img, j, i);
-                else
-                    pane.add(rec, j, i);
+                headOfSnake.next = newer;
+                headOfSnake = newer;
             }
+        });
+
 
     }
+
 
 
     private void createGame(GridPane pane) throws FileNotFoundException {
 
         gameMap = new GameMap(WIDTH, HEIGHT);
         makeSnake(4);
-        gameMap.fillGrid(4);
+        gameMap.fillGrid(-1);
         root.getChildren().add(pane);
         layoutGrid(pane);
 
@@ -384,7 +384,6 @@ public class GUI extends Application {
 
         for (int i = 1; i < WIDTH; i++)
             for (int j = 0; j < HEIGHT; j++) {
-                boolean ok = false;
                 ImageView img = new ImageView(temp);
                 if ((i + j) % 2 == 0) {
                     img.setEffect(colorAdjust);

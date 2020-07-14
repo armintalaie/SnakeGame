@@ -81,7 +81,7 @@ public class GameMap {
 
     public void moveSnake(SnakeCell head, SnakeCell tail) {
 
-        lose(head, tail);
+        lose(head);
 
         if (this.health <= 0)
             return;
@@ -102,13 +102,10 @@ public class GameMap {
     }
 
 
-    private void lose(SnakeCell head, SnakeCell tail) {
-        System.out.println(head.getX() + "  " + head.getY());
-        System.out.println("eee");
-        System.out.println(head);
-        System.out.println(tail);
-        if (grid[head.getY()][head.getX()] == TRAP || grid[tail.getY()][tail.getX()] == TRAP ||
-                head.getY() > WIDTH || head.getY() < 0 || head.getX() > HEIGHT || head.getX() < 0) {
+    private void lose(SnakeCell head) {
+
+        if (grid[head.getY()][head.getX()] == TRAP || head.getY() > WIDTH || head.getY() < 0 ||
+                head.getX() > HEIGHT || head.getX() < 0) {
             this.health--;
             this.refreshMap = true;
             return;
