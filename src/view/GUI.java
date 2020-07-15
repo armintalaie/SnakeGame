@@ -1,15 +1,10 @@
 package view;
 
-
 import javafx.animation.*;
 import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Label;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
@@ -17,16 +12,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.*;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import model.GameMap;
-import model.Snake;
 import model.SnakeCell;
 
-import java.awt.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
@@ -51,13 +42,15 @@ public class GUI extends Application {
 
     public enum Dir {UP, LEFT, RIGHT, DOWN, NONE}
 
-    private Scene scene;
-    private GameMap gameMap;
-    GridPane pane = new GridPane();
     private final int WIDTH = 15;
     private final int HEIGHT = 15;
-    private SnakeCell head;
-    private SnakeCell tail;
+    private final int PAGEWIDTH = 600;
+    private final int PAGEHEIGHT = 600;
+
+    private Scene scene;
+    private GameMap gameMap;
+    GridPane gridMap = new GridPane();
+
     boolean resume = true;
     private Dir curr = Dir.NONE;
     Label level;
@@ -65,10 +58,17 @@ public class GUI extends Application {
     BorderPane borderPane;
     Pane root = new Pane();
 
+    // head and tail of snake shapes on GUI
     private SnakeBody headOfSnake;
     private SnakeBody tailOfSnake;
 
+    // snake head and tail cells
+    private SnakeCell head;
+    private SnakeCell tail;
+
+    // variables to track moving transitions
     private SnakeCell toMove = null;
+    private boolean moving = false;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -81,8 +81,8 @@ public class GUI extends Application {
 
 
         //updateGrid(pane);
-        scene = new Scene(borderPane, 800, 870);
-        createGame(pane);
+        scene = new Scene(borderPane, PAGEWIDTH, PAGEHEIGHT);
+        createGame(gridMap);
 
 
         scene.getStylesheets().add("view/stylesheet.css");
@@ -90,55 +90,69 @@ public class GUI extends Application {
         primaryStage.show();
 
         //playGame();
-        root.setPrefWidth(600);
-        root.setPrefHeight(600);
+        root.setPrefWidth(PAGEWIDTH);
+        root.setPrefHeight(PAGEHEIGHT);
         //playGame();
 
         //Instantiating the path class
 
 
-
         showSnake();
         playGame();
 
-
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.3), event -> {
-
-
-            move();
-
-
-        }));
-        timeline.setCycleCount(Animation.INDEFINITE);
-        timeline.play();
-
-        Task task = new Task<Void>() {
+        AnimationTimer animationTimer = new AnimationTimer() {
             @Override
-            public Void call() throws Exception {
+            public void handle(long now) {
+                if (!moving) {
 
-                while (true) {
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (toMove != null) {
-                                displayMove(toMove, true);
-                                toMove = null;
-                            }
-                        }
-                    });
-                    Thread.sleep(250);
+                    move();
+                    animateSnake();
                 }
-
             }
         };
-        Thread th = new Thread(task);
-        th.setDaemon(true);
-        th.start();
+
+        animationTimer.start();
 
 
+    }
+
+    private void animateSnake() {
+
+        if (toMove == null)
+            return;
+        moving = true;
+        SnakeBody newHead = new SnakeBody(head, true);
+        root.getChildren().add(newHead.shape);
+
+        KeyValue keyValue = new KeyValue(newHead.shape.xProperty(), toMove.getX() * 40);
+        KeyValue keyValue2 = new KeyValue(newHead.shape.yProperty(), toMove.getY() * 40);
+        KeyValue keyValue3 = new KeyValue(tailOfSnake.shape.xProperty(), tailOfSnake.next.shape.getX());
+        KeyValue keyValue4 = new KeyValue(tailOfSnake.shape.yProperty(), tailOfSnake.next.shape.getY());
+        KeyFrame keyFrame = new KeyFrame(Duration.millis(300), keyValue, keyValue2, keyValue3, keyValue4);
 
 
+        Timeline timeline = new Timeline();
+        timeline.getKeyFrames().add(keyFrame);
+        timeline.setCycleCount(1);
+        timeline.play();
 
+
+        timeline.setOnFinished(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                head.setNext(toMove);
+                head = toMove;
+                newHead.snakeCell = head;
+                headOfSnake.next = newHead;
+                headOfSnake = newHead;
+                root.getChildren().remove(tailOfSnake.shape);
+                tailOfSnake = tailOfSnake.next;
+                tail = tail.getNext();
+                toMove = null;
+                moving = false;
+
+            }
+        });
 
     }
 
@@ -177,7 +191,7 @@ public class GUI extends Application {
         SnakeBody prev = null;
 
         while (body != null) {
-            if (body.getNext() == null){
+            if (body.getNext() == null) {
                 headOfSnake = new SnakeBody(body, isHead);
                 root.getChildren().add(headOfSnake.shape);
                 prev.next = headOfSnake;
@@ -209,7 +223,6 @@ public class GUI extends Application {
 
         int new_x = head.getX();
         int new_y = head.getY();
-
 
 
         switch (dir) {
@@ -248,10 +261,6 @@ public class GUI extends Application {
         gameMap.moveSnake(cell, tail);
         toMove = cell;
 
-
-
-
-
         if (!gameMap.levelUp) {
 
         }
@@ -265,71 +274,6 @@ public class GUI extends Application {
 
 
     }
-
-    private void displayMove(SnakeCell cell, boolean remove) {
-
-        SnakeBody newHead = new SnakeBody(head, true);
-
-        Path path = new Path();
-        Path removeTail = new Path();
-
-        path.getElements().add(new MoveTo(newHead.shape.getX()   +20 , newHead.shape.getY()  + 20 ));
-        path.getElements().add(new LineTo(cell.getX() * 40  + 20, cell.getY() * 40 + 20));
-
-        removeTail.getElements().add(new MoveTo(tailOfSnake.shape.getX()  + 20, tailOfSnake.shape.getY() + 20));
-        removeTail.getElements().add(new LineTo(tailOfSnake.next.shape.getX() + 20 , tailOfSnake.next.shape.getY() + 20));
-
-        root.getChildren().add(newHead.shape);
-
-        PathTransition pathTransition1 = new PathTransition();
-        PathTransition pathTransition = new PathTransition();
-
-        pathTransition1.setDuration(Duration.seconds(0.28));
-        pathTransition.setDuration(Duration.seconds(0.28));
-
-        pathTransition1.setNode(tailOfSnake.shape);
-        pathTransition.setNode(newHead.shape);
-        pathTransition1.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
-        pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
-
-        pathTransition.setPath(path);
-        pathTransition1.setPath(removeTail);
-
-
-
-        if (remove) {
-            pathTransition.play();
-            pathTransition1.play();
-            pathTransition1.setOnFinished(new EventHandler<ActionEvent>() {
-
-                @Override
-                public void handle(ActionEvent event) {
-
-                    root.getChildren().remove(tailOfSnake.shape);
-                    tailOfSnake = tailOfSnake.next;
-                    tail = tail.getNext();
-                }
-            });
-        }
-
-        pathTransition.setOnFinished(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-                head.setNext(cell);
-                head = cell;
-                SnakeBody newer = new SnakeBody(head, true);
-                root.getChildren().add(newer.shape);
-                root.getChildren().remove(newHead.shape);
-
-                headOfSnake.next = newer;
-                headOfSnake = newer;
-            }
-        });
-
-
-    }
-
 
 
     private void createGame(GridPane pane) throws FileNotFoundException {
