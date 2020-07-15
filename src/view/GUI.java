@@ -161,6 +161,7 @@ public class GUI extends Application {
     private void updateGameStatus() {
         if (gameMap.refreshMap) {
             layoutContent();
+            gameMap.refreshMap = false;
         }
         topBar.getChildren().clear();
         int level = gameMap.level;
@@ -361,7 +362,7 @@ public class GUI extends Application {
                     cherry.setFitWidth(40);
                     cherry.setFitHeight(40);
                     root.getChildren().add(cherry);
-                    cherry.setX(40 * j);
+                    cherry.setY(40 * j);
                     cherry.setX(40 * i);
                     mapContents.add(cherry);
                 }
