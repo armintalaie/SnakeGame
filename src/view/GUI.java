@@ -45,20 +45,20 @@ public class GUI extends Application {
 
     private final int WIDTH = 15;
     private final int HEIGHT = 15;
-    private final int PAGEWIDTH = 600;
-    private final int PAGEHEIGHT = 600;
+    private final int GUI_WIDTH = 600;
+    private final int GUI_HEIGHT = 600;
 
     private Scene scene;
-    private GameMap gameMap;
-    GridPane gridMap = new GridPane();
+    private HBox topBar;
+     BorderPane borderPane;
+    private Pane root = new Pane();
+    private GridPane gridMap = new GridPane();
 
     boolean resume = true;
     private Dir curr = Dir.NONE;
-    Label level;
-    HBox topBar;
-    BorderPane borderPane;
-    Pane root = new Pane();
 
+
+    private GameMap gameMap;
     // head and tail of snake shapes on GUI
     private SnakeBody headOfSnake;
     private SnakeBody tailOfSnake;
@@ -70,7 +70,7 @@ public class GUI extends Application {
     // variables to track moving transitions
     private SnakeCell toMove = null;
     private boolean moving = false;
-
+    Stage stage;
 
     private ArrayList<ImageView> mapContents = new ArrayList<>();
 
@@ -80,20 +80,23 @@ public class GUI extends Application {
         // initializing GUI and Game map
         borderPane = new BorderPane();
         topBar = new HBox();
+        topBar.setPrefSize(GUI_WIDTH, 60);
         borderPane.setCenter(root);
         borderPane.setTop(topBar);
         createGame(gridMap);
 
-        scene = new Scene(borderPane, PAGEWIDTH, PAGEHEIGHT);
 
+        scene = new Scene(borderPane, GUI_WIDTH, GUI_HEIGHT + 100);
 
-        scene.getStylesheets().add("view/stylesheet.css");
+        stage = primaryStage;
+
+       scene.getStylesheets().add("view/stylesheet.css");
         primaryStage.setScene(scene);
         primaryStage.show();
 
         //playGame();
-        root.setPrefWidth(PAGEWIDTH);
-        root.setPrefHeight(PAGEHEIGHT);
+        root.setPrefWidth(WIDTH * 40);
+        root.setPrefHeight(HEIGHT * 40);
         //playGame();
 
         //Instantiating the path class
@@ -105,9 +108,9 @@ public class GUI extends Application {
         AnimationTimer animationTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                if (!moving) {
-                    updateGameStatus();
+                if (!moving && resume) {
                     move();
+                    updateGameStatus();
                     animateSnake();
                 }
             }
@@ -124,17 +127,24 @@ public class GUI extends Application {
             return;
         moving = true;
         SnakeBody newHead = new SnakeBody(head, true);
+
         root.getChildren().add(newHead.shape);
 
         KeyValue headX = new KeyValue(newHead.shape.xProperty(), toMove.getX() * 40);
         KeyValue headY = new KeyValue(newHead.shape.yProperty(), toMove.getY() * 40);
         KeyValue tailX = new KeyValue(tailOfSnake.shape.xProperty(), tailOfSnake.next.shape.getX());
         KeyValue tailY = new KeyValue(tailOfSnake.shape.yProperty(), tailOfSnake.next.shape.getY());
-        KeyFrame keyFrame = new KeyFrame(Duration.millis(300), headX, headY, tailX, tailY);
+        KeyFrame movingHead = new KeyFrame(Duration.millis(250), headX, headY);
+        KeyFrame movingTail = new KeyFrame(Duration.millis(250), tailX, tailY);
 
 
         Timeline timeline = new Timeline();
-        timeline.getKeyFrames().add(keyFrame);
+        if (this.gameMap.levelUp) {
+            movingHead = new KeyFrame(Duration.millis(150), headX, headY);
+            timeline.getKeyFrames().add(movingHead);
+
+        } else
+            timeline.getKeyFrames().addAll(movingHead, movingTail);
         timeline.setCycleCount(1);
         timeline.play();
 
@@ -147,9 +157,14 @@ public class GUI extends Application {
                 newHead.snakeCell = head;
                 headOfSnake.next = newHead;
                 headOfSnake = newHead;
-                root.getChildren().remove(tailOfSnake.shape);
-                tailOfSnake = tailOfSnake.next;
-                tail = tail.getNext();
+                if (!gameMap.levelUp) {
+                    root.getChildren().remove(tailOfSnake.shape);
+                    tailOfSnake = tailOfSnake.next;
+                    tail = tail.getNext();
+
+                } else
+                    gameMap.levelUp = false;
+
                 toMove = null;
                 moving = false;
 
@@ -159,16 +174,28 @@ public class GUI extends Application {
     }
 
     private void updateGameStatus() {
+        if (gameMap.health <= 0)
+            losingScreen();
+
         if (gameMap.refreshMap) {
+            gameMap.initializeGrid();
+            gameMap.fillGrid(4);
             layoutContent();
-            gameMap.refreshMap = false;
+
         }
         topBar.getChildren().clear();
-        int level = gameMap.level;
-        int health = gameMap.health;
-        Label levelLabel = new Label("LEVEL " + level);
-        Label healthLabel = new Label("HEALTH " + health);
+        Label levelLabel = new Label("Level " + this.gameMap.level);
+        levelLabel.setPrefWidth(GUI_WIDTH / 2);
+        Label healthLabel = new Label("Health " + this.gameMap.health);
+        healthLabel.setPrefWidth(GUI_WIDTH / 2);
         topBar.getChildren().addAll(levelLabel, healthLabel);
+    }
+
+    private void losingScreen() {
+        Intro intro = new Intro(this);
+        System.out.println("Ssss");
+        this.resume = false;
+
 
     }
 
@@ -234,7 +261,6 @@ public class GUI extends Application {
         if (dir == Dir.NONE || toMove != null)
             return;
 
-        resume = false;
 
         int new_x = head.getX();
         int new_y = head.getY();
@@ -348,23 +374,23 @@ public class GUI extends Application {
             removeContent();
             Image prize = new Image(new FileInputStream("resources/cherry.png"));
             Image trap = new Image(new FileInputStream("resources/trap.png"));
-            for (int i = 0; i < WIDTH; i++)
-                for (int j = 0; j < HEIGHT; j++) {
+            for (int i = 0; i < this.WIDTH; i++)
+                for (int j = 0; j < this.HEIGHT; j++) {
                     ImageView cherry;
-                    if (gameMap.getGrid()[j][i] == GameMap.GOAL)
+                    if (this.gameMap.getGrid()[j][i] == GameMap.GOAL)
                         cherry = new ImageView(prize);
                     else {
-                        if (gameMap.getGrid()[j][i] == GameMap.TRAP)
+                        if (this.gameMap.getGrid()[j][i] == GameMap.TRAP)
                             cherry = new ImageView(trap);
                         else
                             continue;
                     }
                     cherry.setFitWidth(40);
                     cherry.setFitHeight(40);
-                    root.getChildren().add(cherry);
-                    cherry.setY(40 * j);
+                    this.root.getChildren().add(cherry);
                     cherry.setX(40 * i);
-                    mapContents.add(cherry);
+                    cherry.setY(40 * j);
+                    this.mapContents.add(cherry);
                 }
         } catch (Exception e) {
             e.printStackTrace();
@@ -374,7 +400,10 @@ public class GUI extends Application {
     }
 
     private void removeContent() {
-        root.getChildren().removeAll(this.mapContents);
+        for(ImageView imageView: this.mapContents)
+            this.root.getChildren().remove(imageView);
+        //root.getChildren().removeAll(this.mapContents);
+        this.mapContents.clear();
     }
 
 }

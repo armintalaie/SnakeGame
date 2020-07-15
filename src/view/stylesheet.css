@@ -1,6 +1,10 @@
 .label {
-    -fx-font : 24px "arial";
-    -fx-padding : 10;
-    -fx-background-color : #4996ff;
+    -fx-font : 30px "Times New Roman";
+    -fx-font-weight: bold;
+    -fx-padding : 20;
+    -fx-background-color : #cf724a;
 }
 
+.rectangle {
+    -fx-background-color: #205ab2;
+}
