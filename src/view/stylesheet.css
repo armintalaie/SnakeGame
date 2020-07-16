@@ -1,10 +1,19 @@
 .label {
     -fx-font : 30px "Times New Roman";
     -fx-font-weight: bold;
-    -fx-padding : 20;
+    -fx-pref-height: 30;
+
     -fx-background-color : #cf724a;
 }
 
 .rectangle {
     -fx-background-color: #205ab2;
+}
+
+.button {
+    -fx-font : 20px "Times New Roman";
+    -fx-padding : 5;
+    -fx-background-color : #cf533b;
+    -fx-pref-height: 70;
+
 }

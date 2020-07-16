@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
@@ -12,6 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -45,14 +47,15 @@ public class GUI extends Application {
 
     private final int WIDTH = 15;
     private final int HEIGHT = 15;
-    private final int GUI_WIDTH = 600;
+    private final int GUI_WIDTH = WIDTH * 40;
     private final int GUI_HEIGHT = 600;
 
     private Scene scene;
     private HBox topBar;
-     BorderPane borderPane;
+     VBox borderPane;
     private Pane root = new Pane();
     private GridPane gridMap = new GridPane();
+    private Button pause = new Button("pause");
 
     boolean resume = true;
     private Dir curr = Dir.NONE;
@@ -78,12 +81,13 @@ public class GUI extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         // initializing GUI and Game map
-        borderPane = new BorderPane();
+        borderPane = new VBox();
         topBar = new HBox();
-        topBar.setPrefSize(GUI_WIDTH, 60);
-        borderPane.setCenter(root);
-        borderPane.setTop(topBar);
+        topBar.setPrefSize(GUI_WIDTH, 30);
+        this.pauseButton();
+        borderPane.getChildren().addAll(topBar,root,pause);
         createGame(gridMap);
+
 
 
         scene = new Scene(borderPane, GUI_WIDTH, GUI_HEIGHT + 100);
@@ -102,7 +106,7 @@ public class GUI extends Application {
         //Instantiating the path class
 
 
-        showSnake();
+
         keyboardInput();
 
         AnimationTimer animationTimer = new AnimationTimer() {
@@ -121,6 +125,18 @@ public class GUI extends Application {
 
     }
 
+    private void pauseButton() {
+
+        this.pause.setOnMouseClicked(event -> {
+            if (this.resume)
+                this.pause.setText("resume");
+            else
+                this.pause.setText("pause");
+            this.resume = !this.resume;
+        });
+
+    }
+
     private void animateSnake() {
 
         if (toMove == null)
@@ -134,13 +150,13 @@ public class GUI extends Application {
         KeyValue headY = new KeyValue(newHead.shape.yProperty(), toMove.getY() * 40);
         KeyValue tailX = new KeyValue(tailOfSnake.shape.xProperty(), tailOfSnake.next.shape.getX());
         KeyValue tailY = new KeyValue(tailOfSnake.shape.yProperty(), tailOfSnake.next.shape.getY());
-        KeyFrame movingHead = new KeyFrame(Duration.millis(250), headX, headY);
-        KeyFrame movingTail = new KeyFrame(Duration.millis(250), tailX, tailY);
+        KeyFrame movingHead = new KeyFrame(Duration.millis(250 - gameMap.level * 3), headX, headY);
+        KeyFrame movingTail = new KeyFrame(Duration.millis(250 - gameMap.level * 3), tailX, tailY);
 
 
         Timeline timeline = new Timeline();
         if (this.gameMap.levelUp) {
-            movingHead = new KeyFrame(Duration.millis(150), headX, headY);
+            movingHead = new KeyFrame(Duration.millis(200 - gameMap.level * 3), headX, headY);
             timeline.getKeyFrames().add(movingHead);
 
         } else
@@ -149,46 +165,50 @@ public class GUI extends Application {
         timeline.play();
 
 
-        timeline.setOnFinished(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                head.setNext(toMove);
-                head = toMove;
-                newHead.snakeCell = head;
-                headOfSnake.next = newHead;
-                headOfSnake = newHead;
-                if (!gameMap.levelUp) {
-                    root.getChildren().remove(tailOfSnake.shape);
-                    tailOfSnake = tailOfSnake.next;
-                    tail = tail.getNext();
+        timeline.setOnFinished(event -> {
+            head.setNext(toMove);
+            head = toMove;
+            newHead.snakeCell = head;
+            headOfSnake.next = newHead;
+            headOfSnake = newHead;
+            if (!gameMap.levelUp) {
+                root.getChildren().remove(tailOfSnake.shape);
+                tailOfSnake = tailOfSnake.next;
+                tail = tail.getNext();
 
-                } else
-                    gameMap.levelUp = false;
+            } else
+                gameMap.levelUp = false;
 
-                toMove = null;
-                moving = false;
+            toMove = null;
+            moving = false;
 
-            }
         });
 
     }
 
     private void updateGameStatus() {
         if (gameMap.health <= 0)
-            losingScreen();
+            this.losingScreen();
 
         if (gameMap.refreshMap) {
-            gameMap.initializeGrid();
-            gameMap.fillGrid(4);
-            layoutContent();
+            if (this.gameMap.levelUp) {
+                this.gameMap.initializeGrid(false);
+            } else {
+                this.toMove = null;
+                this.curr = Dir.NONE;
+                this.gameMap.initializeGrid(false);
+            }
 
+            this.gameMap.fillGrid(4);
+            this.layoutContent();
         }
-        topBar.getChildren().clear();
+
+        this.topBar.getChildren().clear();
         Label levelLabel = new Label("Level " + this.gameMap.level);
-        levelLabel.setPrefWidth(GUI_WIDTH / 2);
+        levelLabel.setPrefSize(GUI_WIDTH / 2, 30);
         Label healthLabel = new Label("Health " + this.gameMap.health);
-        healthLabel.setPrefWidth(GUI_WIDTH / 2);
-        topBar.getChildren().addAll(levelLabel, healthLabel);
+        healthLabel.setPrefSize(GUI_WIDTH / 2, 30);
+        this.topBar.getChildren().addAll(levelLabel, healthLabel);
     }
 
     private void losingScreen() {
@@ -233,6 +253,7 @@ public class GUI extends Application {
         SnakeCell body = tail;
         SnakeBody prev = null;
 
+
         while (body != null) {
             if (body.getNext() == null) {
                 headOfSnake = new SnakeBody(body, isHead);
@@ -253,6 +274,19 @@ public class GUI extends Application {
 
             body = body.getNext();
         }
+    }
+
+    private void resetSnake() {
+        SnakeBody body = this.tailOfSnake;
+        this.headOfSnake = null;
+
+
+        while (body != null) {
+            this.root.getChildren().remove(body.shape);
+            body = body.next;
+        }
+        this.makeSnake(4);
+
     }
 
     private void move() {
@@ -280,43 +314,29 @@ public class GUI extends Application {
                 break;
         }
 
-        if (new_x >= this.WIDTH)
-            new_x -= this.WIDTH;
-
-        if (new_x < 0)
-            new_x += this.WIDTH;
-
-        if (new_y >= this.HEIGHT)
-            new_y -= this.HEIGHT;
-
-        if (new_y < 0)
-            new_y += this.HEIGHT;
-
 
         SnakeCell cell = new SnakeCell(new_x, new_y);
         gameMap.moveSnake(cell, tail);
         toMove = cell;
 
-        if (!gameMap.levelUp) {
-
-        }
 
     }
 
 
     private void createGame(GridPane pane) throws FileNotFoundException {
 
-        gameMap = new GameMap(WIDTH, HEIGHT);
-        makeSnake(4);
-        gameMap.fillGrid(4);
-        root.getChildren().add(pane);
-        layoutMap(pane);
-        updateGameStatus();
-        layoutContent();
+        this.gameMap = new GameMap(WIDTH, HEIGHT);
+        this.makeSnake(4);
+        this.gameMap.fillGrid(4);
+        this.root.getChildren().add(pane);
+        this.layoutMap(pane);
+        this.updateGameStatus();
+        this.layoutContent();
+        showSnake();
 
     }
 
-    public void makeSnake(int length) {
+    private void makeSnake(int length) {
 
         SnakeCell next = null;
         SnakeCell head = null;
@@ -326,10 +346,9 @@ public class GUI extends Application {
 
         for (int i = 0; i < length; i++) {
             SnakeCell cell = new SnakeCell(x - i, y);
-            gameMap.getGrid()[y][x - i] = gameMap.SNAKECELL;
+            this.gameMap.getGrid()[y][x - i] = GameMap.SNAKECELL;
             cell.setNext(next);
             next = cell;
-
 
             if (head == null)
                 head = cell;

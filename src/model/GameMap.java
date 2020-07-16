@@ -1,9 +1,6 @@
 package model;
 
 
-
-import java.util.EmptyStackException;
-import java.util.LinkedList;
 import java.util.Random;
 
 
@@ -35,16 +32,16 @@ public class GameMap {
         this.WIDTH = width;
         this.HEIGHT = height;
         this.grid = new int[this.WIDTH][this.HEIGHT];
-        initializeGrid();
+        initializeGrid(false);
 
     }
 
 
-    public void initializeGrid() {
+    public void initializeGrid(boolean emptyAll) {
 
         for (int i = 0; i < this.WIDTH; i++)
             for (int j = 0; j < this.HEIGHT; j++) {
-                if (grid[j][i] != SNAKECELL)
+                if (emptyAll || grid[j][i] != SNAKECELL)
                     grid[j][i] = EMPTY;
             }
 
@@ -81,9 +78,9 @@ public class GameMap {
 
     public void moveSnake(SnakeCell head, SnakeCell tail) {
 
-        lose(head);
+        didLose(head);
 
-        if (this.health <= 0)
+        if (this.health <= 0 || this.refreshMap)
             return;
 
         if (grid[head.getY()][head.getX()] == GOAL) {
@@ -98,14 +95,12 @@ public class GameMap {
         grid[head.getY()][head.getX()] = SNAKECELL;
 
 
-
     }
 
 
-    private void lose(SnakeCell head) {
+    private void didLose(SnakeCell head) {
 
-        if (grid[head.getY()][head.getX()] == TRAP || head.getY() > WIDTH || head.getY() < 0 ||
-                head.getX() > HEIGHT || head.getX() < 0) {
+        if (invadeBoundaries(head) || grid[head.getY()][head.getX()] == TRAP) {
             this.health--;
             this.refreshMap = true;
             return;
@@ -116,5 +111,10 @@ public class GameMap {
         }
 
 
+    }
+
+    private boolean invadeBoundaries(SnakeCell head) {
+        return head.getY() >= WIDTH || head.getY() < 0 ||
+                head.getX() >= HEIGHT || head.getX() < 0;
     }
 }
