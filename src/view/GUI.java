@@ -2,8 +2,7 @@ package view;
 
 import javafx.animation.*;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,7 +12,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -55,6 +53,7 @@ public class GUI extends Application {
      VBox borderPane;
     private Pane root = new Pane();
     private GridPane gridMap = new GridPane();
+    private HBox bottom = new HBox();
     private Button pause = new Button("pause");
 
     boolean resume = true;
@@ -73,6 +72,8 @@ public class GUI extends Application {
     // variables to track moving transitions
     private SnakeCell toMove = null;
     private boolean moving = false;
+    private int switchColor = 1;
+    private boolean colorDir = true;
     Stage stage;
 
     private ArrayList<ImageView> mapContents = new ArrayList<>();
@@ -84,8 +85,10 @@ public class GUI extends Application {
         borderPane = new VBox();
         topBar = new HBox();
         topBar.setPrefSize(GUI_WIDTH, 30);
-        this.pauseButton();
-        borderPane.getChildren().addAll(topBar,root,pause);
+
+
+        this.pauseAndQuit();
+        borderPane.getChildren().addAll(topBar,root,bottom);
         createGame(gridMap);
 
 
@@ -125,7 +128,14 @@ public class GUI extends Application {
 
     }
 
-    private void pauseButton() {
+    private void pauseAndQuit() {
+
+        Button quit = new Button("Quit");
+
+        quit.setOnMouseClicked(event -> {
+            stage.close();
+        });
+
 
         this.pause.setOnMouseClicked(event -> {
             if (this.resume)
@@ -134,6 +144,9 @@ public class GUI extends Application {
                 this.pause.setText("pause");
             this.resume = !this.resume;
         });
+        bottom.getStyleClass().add("hbox");
+        bottom.getChildren().add(pause);
+        bottom.getChildren().add(quit);
 
     }
 
@@ -142,7 +155,21 @@ public class GUI extends Application {
         if (toMove == null)
             return;
         moving = true;
-        SnakeBody newHead = new SnakeBody(head, true);
+        SnakeBody newHead = new SnakeBody(head, switchColor);
+
+        if (this.colorDir) {
+            if(this.switchColor < 40)
+                this.switchColor += 3;
+            else
+                this.colorDir = false;
+        } else {
+            if(this.switchColor > 10)
+                this.switchColor -= 3;
+            else
+                this.colorDir = true;
+        }
+
+
 
         root.getChildren().add(newHead.shape);
 
@@ -256,13 +283,13 @@ public class GUI extends Application {
 
         while (body != null) {
             if (body.getNext() == null) {
-                headOfSnake = new SnakeBody(body, isHead);
+                headOfSnake = new SnakeBody(body, 1);
                 root.getChildren().add(headOfSnake.shape);
                 prev.next = headOfSnake;
             } else {
 
 
-                SnakeBody others = new SnakeBody(body, false);
+                SnakeBody others = new SnakeBody(body, 1);
                 if (prev != null)
                     prev.next = others;
                 else

@@ -1,19 +1,27 @@
 .label {
-    -fx-font : 30px "Times New Roman";
+    -fx-font : 30px "Arial";
     -fx-font-weight: bold;
     -fx-pref-height: 30;
 
-    -fx-background-color : #cf724a;
+    -fx-background-color : #1aaacf;
 }
 
 .rectangle {
-    -fx-background-color: #205ab2;
+    -fx-background-color: #1aaacf;
 }
 
 .button {
-    -fx-font : 20px "Times New Roman";
+    -fx-font : 25px "Arial";
     -fx-padding : 5;
-    -fx-background-color : #cf533b;
-    -fx-pref-height: 70;
+    -fx-background-color : #1aaacf;
+    -fx-pref-width: 100;
+    -fx-pref-height: 60;
+    -fx-font-weight: bold;
 
+}
+
+.hbox {
+    -fx-pref-height: 70;
+    -fx-font-weight: bold;
+    -fx-background-color : #1aaacf;
 }
