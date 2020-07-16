@@ -14,7 +14,7 @@
     -fx-font : 25px "Arial";
     -fx-padding : 5;
     -fx-background-color : #1aaacf;
-    -fx-pref-width: 100;
+    -fx-min-width: 100;
     -fx-pref-height: 60;
     -fx-font-weight: bold;
 
@@ -23,5 +23,10 @@
 .hbox {
     -fx-pref-height: 70;
     -fx-font-weight: bold;
+    -fx-background-color : #1aaacf;
+}
+
+.top {
+    -fx-pref-height: 30;
     -fx-background-color : #1aaacf;
 }

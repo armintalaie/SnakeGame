@@ -54,7 +54,6 @@ public class GUI extends Application {
     private Pane root = new Pane();
     private GridPane gridMap = new GridPane();
     private HBox bottom = new HBox();
-    private Button pause = new Button("pause");
 
     boolean resume = true;
     private Dir curr = Dir.NONE;
@@ -91,11 +90,11 @@ public class GUI extends Application {
         borderPane.getChildren().addAll(topBar,root,bottom);
         createGame(gridMap);
 
-
-
         scene = new Scene(borderPane, GUI_WIDTH, GUI_HEIGHT + 100);
 
         stage = primaryStage;
+        stage.setTitle("SNAKE GAME");
+
 
        scene.getStylesheets().add("view/stylesheet.css");
         primaryStage.setScene(scene);
@@ -130,19 +129,20 @@ public class GUI extends Application {
 
     private void pauseAndQuit() {
 
-        Button quit = new Button("Quit");
+        Button quit = new Button("Quit Game");
+        Button pause = new Button("pause");
 
         quit.setOnMouseClicked(event -> {
             stage.close();
         });
 
 
-        this.pause.setOnMouseClicked(event -> {
+        pause.setOnMouseClicked(event -> {
             if (this.resume)
-                this.pause.setText("resume");
+                pause.setText("Resume");
             else
-                this.pause.setText("pause");
-            this.resume = !this.resume;
+                pause.setText("Pause");
+                resume = !this.resume;
         });
         bottom.getStyleClass().add("hbox");
         bottom.getChildren().add(pause);
@@ -168,7 +168,6 @@ public class GUI extends Application {
             else
                 this.colorDir = true;
         }
-
 
 
         root.getChildren().add(newHead.shape);
@@ -230,17 +229,37 @@ public class GUI extends Application {
             this.layoutContent();
         }
 
+        this.topBar.getStyleClass().add("top");
         this.topBar.getChildren().clear();
         Label levelLabel = new Label("Level " + this.gameMap.level);
-        levelLabel.setPrefSize(GUI_WIDTH / 2, 30);
-        Label healthLabel = new Label("Health " + this.gameMap.health);
-        healthLabel.setPrefSize(GUI_WIDTH / 2, 30);
+        levelLabel.setPrefSize((double) GUI_WIDTH / 2, 30);
+        Label healthLabel = new Label("Health ");
+        //healthLabel.setPrefSize((double) GUI_WIDTH / 2, 30);
         this.topBar.getChildren().addAll(levelLabel, healthLabel);
+        try {
+            Image image = new Image(new FileInputStream("resources/star.png"));
+            for (int i = 1 ; i <= 5; i++) {
+
+                ImageView img = new ImageView(image);
+                img.setFitWidth(30);
+                img.setFitHeight(30);
+                if (i > this.gameMap.health) {
+                    ColorAdjust colorAdjust = new ColorAdjust();
+                    colorAdjust.setBrightness(0.8);
+                    img.setEffect(colorAdjust);
+                }
+                this.topBar.getChildren().add(img);
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     private void losingScreen() {
         Intro intro = new Intro(this);
-        System.out.println("Ssss");
         this.resume = false;
 
 
@@ -276,7 +295,6 @@ public class GUI extends Application {
     }
 
     private void showSnake() {
-        boolean isHead = false;
         SnakeCell body = tail;
         SnakeBody prev = null;
 
@@ -441,7 +459,6 @@ public class GUI extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
     }
 
