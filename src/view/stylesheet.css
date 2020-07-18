@@ -6,15 +6,13 @@
     -fx-background-color : #1aaacf;
 }
 
-.rectangle {
-    -fx-background-color: #1aaacf;
-}
 
 .button {
     -fx-font : 25px "Arial";
     -fx-padding : 5;
     -fx-background-color : #1aaacf;
-    -fx-min-width: 100;
+    -fx-min-width: 150;
+    -fx-text-alignment: left;
     -fx-pref-height: 60;
     -fx-font-weight: bold;
 

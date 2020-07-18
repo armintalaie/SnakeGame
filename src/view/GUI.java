@@ -130,7 +130,7 @@ public class GUI extends Application {
     private void pauseAndQuit() {
 
         Button quit = new Button("Quit Game");
-        Button pause = new Button("pause");
+        Button pause = new Button("Pause");
 
         quit.setOnMouseClicked(event -> {
             stage.close();
