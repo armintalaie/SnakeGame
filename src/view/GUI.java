@@ -45,10 +45,10 @@ public class GUI extends Application {
 
     private final int WIDTH = 15;
     private final int HEIGHT = 15;
-    private final int GUI_WIDTH = WIDTH * 40;
+    private final int GUI_WIDTH = WIDTH * 40 + 100 ;
     private final int GUI_HEIGHT = 600;
 
-    private Scene scene;
+     Scene scene;
     private HBox topBar;
      VBox borderPane;
     private Pane root = new Pane();
@@ -83,11 +83,15 @@ public class GUI extends Application {
         // initializing GUI and Game map
         borderPane = new VBox();
         topBar = new HBox();
-        topBar.setPrefSize(GUI_WIDTH, 30);
+        topBar.setPrefSize(GUI_WIDTH, 50);
+
+        borderPane.getStyleClass().add("map");
+
 
 
         this.pauseAndQuit();
         borderPane.getChildren().addAll(topBar,root,bottom);
+        borderPane.getStyleClass().add("screen");
         createGame(gridMap);
 
         scene = new Scene(borderPane, GUI_WIDTH, GUI_HEIGHT + 100);
@@ -147,6 +151,7 @@ public class GUI extends Application {
         bottom.getStyleClass().add("hbox");
         bottom.getChildren().add(pause);
         bottom.getChildren().add(quit);
+        bottom.setSpacing(20);
 
     }
 
@@ -234,7 +239,6 @@ public class GUI extends Application {
         Label levelLabel = new Label("Level " + this.gameMap.level);
         levelLabel.setPrefSize((double) GUI_WIDTH / 2, 30);
         Label healthLabel = new Label("Health ");
-        //healthLabel.setPrefSize((double) GUI_WIDTH / 2, 30);
         this.topBar.getChildren().addAll(levelLabel, healthLabel);
         try {
             Image image = new Image(new FileInputStream("resources/star.png"));
@@ -259,7 +263,14 @@ public class GUI extends Application {
     }
 
     private void losingScreen() {
-        Intro intro = new Intro(this);
+        Intro intro = new Intro();
+        try {
+            intro.stage = (stage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        intro.loseScreen(this);
+
         this.resume = false;
 
 

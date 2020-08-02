@@ -1,0 +1,34 @@
+
+.button {
+    -fx-background-color: #1ad677;
+    -fx-font : 30px "Arial";
+    -fx-background-radius: 22;
+    -fx-pref-width: 180px;
+    -fx-border-width: 2px;
+    -fx-border-color: #000000;
+    -fx-border-radius: 20;
+    -fx-font-weight: bold;
+
+}
+
+.vbox {
+    -fx-alignment: center;
+    -fx-padding: 200;
+    -fx-hgap: 300;
+}
+
+
+.label {
+    -fx-font : 50px "Arial";
+    -fx-alignment: center;
+    -fx-font-weight: bolder;
+
+}
+
+.borderpane {
+    -fx-background-color : #60b6cf;
+}
+
+.img {
+    -fx-background-color:transparent;
+}

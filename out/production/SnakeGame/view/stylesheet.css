@@ -1,33 +1,71 @@
 .label {
     -fx-font : 30px "Arial";
     -fx-font-weight: bold;
-    -fx-pref-height: 30;
-
-    -fx-background-color : #1aaacf;
+    -fx-pref-height: 50;
+    -fx-background-color : #60b6cf;
 }
 
-.rectangle {
-    -fx-background-color: #1aaacf;
-}
 
 .button {
-    -fx-font : 25px "Arial";
-    -fx-padding : 5;
-    -fx-background-color : #1aaacf;
-    -fx-min-width: 150;
-    -fx-text-alignment: left;
-    -fx-pref-height: 60;
+    -fx-background-color: #1ad677;
+    -fx-font : 20px "Arial";
+    -fx-background-radius: 22;
+    -fx-pref-width: 140px;
+    -fx-border-width: 2px;
     -fx-font-weight: bold;
+    -fx-border-color: #000000;
+    -fx-border-radius: 20;
+    -fx-padding: 5;
+}
 
+.screen {
+    -fx-background-color : #60b6cf;
 }
 
 .hbox {
-    -fx-pref-height: 70;
-    -fx-font-weight: bold;
-    -fx-background-color : #1aaacf;
+    -fx-pref-height: 50;
+    -fx-background-color : #60b6cf;
 }
 
 .top {
-    -fx-pref-height: 30;
-    -fx-background-color : #1aaacf;
+    -fx-pref-height: 50;
+    -fx-background-color : #60b6cf;
+}
+
+.map {
+    -fx-padding: 0 0 0 50;
+}
+
+
+
+.introbutton {
+    -fx-background-color: #1ad677;
+    -fx-font : 30px "Arial";
+    -fx-background-radius: 22;
+    -fx-pref-width: 180px;
+    -fx-border-width: 2px;
+    -fx-border-color: #000000;
+    -fx-border-radius: 20;
+    -fx-font-weight: bold;
+
+}
+
+.introvbox {
+    -fx-alignment: center;
+    -fx-padding: 200;
+    -fx-hgap: 300;
+}
+
+
+.introlabel {
+    -fx-font : 50px "Arial";
+    -fx-text-fill: #1ad677;
+    -fx-alignment: center;
+    -fx-font-weight: bolder;
+    -fx-background-color: #274245;
+
+}
+
+.introborderpane {
+    -fx-background-color : #274245;
 }

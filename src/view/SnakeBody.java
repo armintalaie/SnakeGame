@@ -15,10 +15,10 @@ public class SnakeBody {
     Rectangle shape;
 
     SnakeBody(SnakeCell snakeCell, int switchColor) {
-        shape = new Rectangle(40, 40, Color.rgb(24, 87, 122));
+        shape = new Rectangle(40, 40, Color.rgb(21, 58, 45));
 
         ColorAdjust colorAdjust = new ColorAdjust();
-        colorAdjust.setBrightness((double) switchColor / 90);
+        colorAdjust.setBrightness((double) switchColor / 200);
         Effect e = createShadowedBox(5, 5, 5, 5, 40);
         colorAdjust.setInput(e);
         this.shape.setEffect(colorAdjust);
@@ -30,7 +30,7 @@ public class SnakeBody {
 
     private Effect createShadowedBox(double shadowWidth, double shadowHeight, double offsetX, double offsetY, double radius) {
         DropShadow e = new DropShadow();
-        e.setColor(Color.rgb(24, 87, 122, 0.8));
+        e.setColor(Color.rgb(21, 58, 45, 0.8));
         e.setWidth(shadowWidth);
         e.setHeight(shadowHeight);
         e.setOffsetX(offsetX);
